@@ -139,7 +139,7 @@ public class Main_Frame extends javax.swing.JFrame {
         cmbSaved.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         cmbSaved.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         if(loaded){
-            cmbSaved.setModel(new DefaultComboBoxModel(Functions.configNames().split("#")));
+            cmbSaved.setModel(new DefaultComboBoxModel(Functions.profileNames().split("#")));
         }else{
             cmbSaved.setModel(new DefaultComboBoxModel(new String[] {"No Saved Configs"}));
         }
@@ -320,7 +320,7 @@ public class Main_Frame extends javax.swing.JFrame {
 
     private void btnLoadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoadActionPerformed
         String name = cmbSaved.getSelectedItem().toString();
-        String[] conf = Functions.getConfig(name).split("#");
+        String[] conf = Functions.getProfile(name).split("#");
         txtName.setText(conf[0]);
         cmbNetwork.setSelectedItem(conf[1]);
         txtPath.setText(conf[2]);
@@ -335,7 +335,7 @@ public class Main_Frame extends javax.swing.JFrame {
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
         String conf = txtName.getText() +"#"+ cmbNetwork.getSelectedItem().toString() +"#"+ txtPath.getText() + "#" + chkI.isSelected() + "#" + chk64.isSelected() ;
-        Functions.saveConfigs(conf);
+        Functions.saveProfiles(conf);
     }//GEN-LAST:event_btnSaveActionPerformed
 
     private void btnFindActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFindActionPerformed
@@ -387,7 +387,7 @@ public class Main_Frame extends javax.swing.JFrame {
 
     private void btnRunActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRunActionPerformed
         try {
-            Functions.run(chkI.isSelected(), chk64.isSelected());
+            Functions.runProcess(chkI.isSelected(), chk64.isSelected());
         } catch (IOException ex) {
             Logger.getLogger(Main_Frame.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -420,13 +420,23 @@ public class Main_Frame extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(Main_Frame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                boolean save = Functions.saveConfig();
+                if(save){
+                    System.out.println("Save Succesful");
+                }else{
+                    System.out.println("Save failed");
+                }            
+            }        
+        });
         try {
             Functions.NetInterface = NetworkInterface.getNetworkInterfaces();
         } catch (SocketException ex) {
             Logger.getLogger(Main_Frame.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-        loaded = Functions.loadConfigs();
+        Functions.loadConfig();
+        loaded = Functions.loadProfiles();
         
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {

@@ -5,16 +5,11 @@
  */
 package GUI;
 
-import java.awt.List;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Scanner;
@@ -31,11 +26,12 @@ public class Functions {
     static String FORCE_BIND_IP_NAME = "ForceBindIP.exe";
     static String FORCE_BIND_IP_NAME_64 = "ForceBindIP64.exe";
     static String CONFIG_FILE_PATH = "Config.ini";
+    static String SAVED_FILE_PATH = "Profiles.ini";
     static int ARBRITRARY_ARRAY_SIZE = 100;
     static String ProgramFile;
     static Enumeration<NetworkInterface> NetInterface;
     static String UseNetIntAddress;
-    static savedConfiguration[] saveConfigs;
+    static SavedProfile[] saveProfiles;
     static int numConfigs = 0;
     
     static boolean programFound(){
@@ -72,7 +68,7 @@ public class Functions {
         return newArr;
     }
     
-    static void run(boolean i, boolean x64) throws IOException{
+    static void runProcess(boolean i, boolean x64) throws IOException{
         ProcessBuilder p;
         if(i && x64){
             p = new ProcessBuilder("cmd.exe", "/c", "cd "+ FORCE_BIND_IP_DIR + " && " + FORCE_BIND_IP_NAME_64 + " -i " + UseNetIntAddress + " " + ProgramFile );
@@ -86,36 +82,79 @@ public class Functions {
         p.start();
     }
     
-    static boolean loadConfigs(){
+    static boolean loadProfiles(){
         try {
-            Scanner inf = new Scanner(new File(CONFIG_FILE_PATH));
-            saveConfigs = new savedConfiguration[inf.nextInt()];
-            inf.nextLine();
-            while(inf.hasNext()){
-                String line = inf.nextLine();
-                String[] lineArr = line.split("#");
-                boolean usei = Boolean.parseBoolean(lineArr[3]);
-                boolean x64 = Boolean.parseBoolean(lineArr[4]);
-                saveConfigs[numConfigs] = new savedConfiguration(lineArr[0], lineArr[1], lineArr[2], usei, x64);
-                numConfigs++;
+            File profileFile = new File(SAVED_FILE_PATH);
+            profileFile.createNewFile();
+            Scanner inf = new Scanner(profileFile);
+            if(inf.hasNext()){
+                saveProfiles = new SavedProfile[inf.nextInt()];
+                inf.nextLine();
+                while(inf.hasNext()){
+                    String line = inf.nextLine();
+                    String[] lineArr = line.split("#");
+                    boolean usei = Boolean.parseBoolean(lineArr[3]);
+                    boolean x64 = Boolean.parseBoolean(lineArr[4]);
+                    saveProfiles[numConfigs] = new SavedProfile(lineArr[0], lineArr[1], lineArr[2], usei, x64);
+                    numConfigs++;
+                }
+                inf.close();
+                return true;
+            }else{
+                return false;
             }
-            inf.close();
-            return true;
         } catch (FileNotFoundException ex) {
+            System.out.println("File " + SAVED_FILE_PATH + " not found. Creating it.");
+            return false;
+        } catch (IOException ex) {
             Logger.getLogger(Functions.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         }
         
     }
     
-    static void saveConfigs(String newConf){
+    static void loadConfig(){
         try {
-            PrintWriter outf = new PrintWriter(new File(CONFIG_FILE_PATH));
+            File confFile = new File(CONFIG_FILE_PATH);
+            Scanner inf = new Scanner(confFile);
+            if(inf.hasNextLine() && inf.next() != ""){
+                FORCE_BIND_IP_DIR = inf.nextLine();
+                SAVED_FILE_PATH = inf.nextLine();
+            }
+            System.out.println("value: " + FORCE_BIND_IP_DIR);
+            System.out.println("Value: "+SAVED_FILE_PATH);
+            inf.close();
+        } catch (Exception ex) {
+            Logger.getLogger(Functions.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }
+    
+    static boolean saveConfig(){
+        try {
+            File confFile = new File(CONFIG_FILE_PATH);
+            confFile.createNewFile();
+            PrintWriter outf = new PrintWriter(confFile);
+            outf.println(FORCE_BIND_IP_DIR);
+            outf.println(SAVED_FILE_PATH);
+            System.out.println(FORCE_BIND_IP_DIR);
+            System.out.println(SAVED_FILE_PATH);
+            outf.close();
+            return true;
+        } catch (Exception ex) {
+            Logger.getLogger(Functions.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
+    }
+    
+    static void saveProfiles(String newProfile){
+        try {
+            PrintWriter outf = new PrintWriter(new File(SAVED_FILE_PATH));
             outf.println(numConfigs+1);
             for(int x = 0; x < numConfigs; x++){
-                outf.println(saveConfigs[x].toString());
+                outf.println(saveProfiles[x].toString());
             }
-            outf.print(newConf);
+            outf.print(newProfile);
             outf.close();
         } catch (IOException ex) {
             Logger.getLogger(Functions.class.getName()).log(Level.SEVERE, null, ex);
@@ -123,13 +162,13 @@ public class Functions {
                 
     }
     
-    static String getConfig(String name){
+    static String getProfile(String name){
             boolean found = false;
             int count = 0;
             String config = null;
             while(!found && count < numConfigs){
-                if(saveConfigs[count].getName().equals(name)){
-                    config = saveConfigs[count].toString();
+                if(saveProfiles[count].getName().equals(name)){
+                    config = saveProfiles[count].toString();
                     found = true;
                 }
             }
@@ -140,10 +179,10 @@ public class Functions {
             }
     }
     
-    static String configNames(){
+    static String profileNames(){
         String out = "";
         for(int x = 0; x < numConfigs; x++){
-            out += saveConfigs[x].getName()+"#";
+            out += saveProfiles[x].getName()+"#";
         }
         return out;
     }

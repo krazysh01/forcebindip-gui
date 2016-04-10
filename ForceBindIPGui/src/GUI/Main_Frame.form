@@ -204,7 +204,7 @@
         </Property>
       </Properties>
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="if(loaded){&#xd;&#xa;    cmbSaved.setModel(new DefaultComboBoxModel(Functions.configNames().split(&quot;#&quot;)));&#xd;&#xa;}else{&#xd;&#xa;    cmbSaved.setModel(new DefaultComboBoxModel(new String[] {&quot;No Saved Configs&quot;}));&#xd;&#xa;}"/>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="if(loaded){&#xd;&#xa;    cmbSaved.setModel(new DefaultComboBoxModel(Functions.profileNames().split(&quot;#&quot;)));&#xd;&#xa;}else{&#xd;&#xa;    cmbSaved.setModel(new DefaultComboBoxModel(new String[] {&quot;No Saved Configs&quot;}));&#xd;&#xa;}"/>
         <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
       </AuxValues>
     </Component>

@@ -9,14 +9,14 @@ package GUI;
  *
  * @author user
  */
-public class savedConfiguration {
+public class SavedProfile {
     private String name;
     private String NID;
     private String executable;
     private boolean useI;
     private boolean x64;
      
-    public savedConfiguration(String name, String nid, String exec, boolean i, boolean x64){
+    public SavedProfile(String name, String nid, String exec, boolean i, boolean x64){
         this.name = name;
         this.NID = nid;
         this.executable = exec;

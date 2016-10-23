@@ -12,6 +12,7 @@ import java.io.PrintWriter;
 import java.net.NetworkInterface;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.LinkedList;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,8 +32,7 @@ public class Functions {
     static String ProgramFile;
     static Enumeration<NetworkInterface> NetInterface;
     static String UseNetIntAddress;
-    static SavedProfile[] saveProfiles;
-    static int numConfigs = 0;
+    static LinkedList<SavedProfile> saveProfiles = new LinkedList<>();
     
     static boolean programFound(){
         
@@ -68,18 +68,20 @@ public class Functions {
         return newArr;
     }
     
-    static void runProcess(boolean i, boolean x64) throws IOException{
-        ProcessBuilder p;
+    static Process runProcess(boolean i, boolean x64) throws IOException{
+        ProcessBuilder pb;
         if(i && x64){
-            p = new ProcessBuilder("cmd.exe", "/c", "cd "+ FORCE_BIND_IP_DIR + " && " + FORCE_BIND_IP_NAME_64 + " -i " + UseNetIntAddress + " " + ProgramFile );
+            pb = new ProcessBuilder("cmd.exe", "/c", "cd "+ FORCE_BIND_IP_DIR + " && " + FORCE_BIND_IP_NAME_64 + " -i " + UseNetIntAddress + " " + ProgramFile );
         }else if(i){
-            p = new ProcessBuilder("cmd.exe", "/c", "cd "+ FORCE_BIND_IP_DIR + " && " + FORCE_BIND_IP_NAME + " -i " + UseNetIntAddress + " " + ProgramFile );
+            pb = new ProcessBuilder("cmd.exe", "/c", "cd "+ FORCE_BIND_IP_DIR + " && " + FORCE_BIND_IP_NAME + " -i " + UseNetIntAddress + " " + ProgramFile );
         }else if(x64){
-            p = new ProcessBuilder("cmd.exe", "/c", "cd "+ FORCE_BIND_IP_DIR + " && " + FORCE_BIND_IP_NAME_64 + " " + UseNetIntAddress + " " + ProgramFile );
+            pb = new ProcessBuilder("cmd.exe", "/c", "cd "+ FORCE_BIND_IP_DIR + " && " + FORCE_BIND_IP_NAME_64 + " " + UseNetIntAddress + " " + ProgramFile );
         }else{
-            p = new ProcessBuilder("cmd.exe", "/c", "cd "+ FORCE_BIND_IP_DIR + " && " + FORCE_BIND_IP_NAME + " " + UseNetIntAddress + " " + ProgramFile );
+            pb = new ProcessBuilder("cmd.exe", "/c", "cd "+ FORCE_BIND_IP_DIR + " && " + FORCE_BIND_IP_NAME + " " + UseNetIntAddress + " " + ProgramFile );
         }
-        p.start();
+        pb.redirectErrorStream(true).inheritIO();
+        Process p =  pb.start();
+        return p;
     }
     
     static boolean loadProfiles(){
@@ -88,15 +90,14 @@ public class Functions {
             profileFile.createNewFile();
             Scanner inf = new Scanner(profileFile);
             if(inf.hasNext()){
-                saveProfiles = new SavedProfile[inf.nextInt()];
-                inf.nextLine();
+                if(inf.hasNextInt())
+                    inf.nextLine();
                 while(inf.hasNext()){
                     String line = inf.nextLine();
                     String[] lineArr = line.split("#");
                     boolean usei = Boolean.parseBoolean(lineArr[3]);
                     boolean x64 = Boolean.parseBoolean(lineArr[4]);
-                    saveProfiles[numConfigs] = new SavedProfile(lineArr[0], lineArr[1], lineArr[2], usei, x64);
-                    numConfigs++;
+                    saveProfiles.add(new SavedProfile(lineArr[0], lineArr[1], lineArr[2], usei, x64));
                 }
                 inf.close();
                 return true;
@@ -117,9 +118,9 @@ public class Functions {
         try {
             File confFile = new File(CONFIG_FILE_PATH);
             Scanner inf = new Scanner(confFile);
-            if(inf.hasNextLine() && inf.next() != ""){
+            if(inf.hasNextLine() /*&& inf.next() != ""*/){
                 FORCE_BIND_IP_DIR = inf.nextLine();
-                SAVED_FILE_PATH = inf.nextLine();
+                //SAVED_FILE_PATH = inf.nextLine();
             }
             System.out.println("value: " + FORCE_BIND_IP_DIR);
             System.out.println("Value: "+SAVED_FILE_PATH);
@@ -136,9 +137,9 @@ public class Functions {
             confFile.createNewFile();
             PrintWriter outf = new PrintWriter(confFile);
             outf.println(FORCE_BIND_IP_DIR);
-            outf.println(SAVED_FILE_PATH);
+            //outf.println(SAVED_FILE_PATH);
             System.out.println(FORCE_BIND_IP_DIR);
-            System.out.println(SAVED_FILE_PATH);
+            //System.out.println(SAVED_FILE_PATH);
             outf.close();
             return true;
         } catch (Exception ex) {
@@ -147,14 +148,14 @@ public class Functions {
         }
     }
     
-    static void saveProfiles(String newProfile){
+    static void saveProfile(SavedProfile newProfile){
+        saveProfiles.add(newProfile);
         try {
             PrintWriter outf = new PrintWriter(new File(SAVED_FILE_PATH));
-            outf.println(numConfigs+1);
-            for(int x = 0; x < numConfigs; x++){
-                outf.println(saveProfiles[x].toString());
+            for(int x = 0; x < saveProfiles.size(); x++){
+                outf.println(saveProfiles.get(x).toString());
             }
-            outf.print(newProfile);
+            //outf.print(newProfile);
             outf.close();
         } catch (IOException ex) {
             Logger.getLogger(Functions.class.getName()).log(Level.SEVERE, null, ex);
@@ -166,9 +167,9 @@ public class Functions {
             boolean found = false;
             int count = 0;
             String config = null;
-            while(!found && count < numConfigs){
-                if(saveProfiles[count].getName().equals(name)){
-                    config = saveProfiles[count].toString();
+            while(!found && count < saveProfiles.size()){
+                if(saveProfiles.get(count).getName().equals(name)){
+                    config = saveProfiles.get(count).toString();
                     found = true;
                 }
             }
@@ -181,8 +182,8 @@ public class Functions {
     
     static String profileNames(){
         String out = "";
-        for(int x = 0; x < numConfigs; x++){
-            out += saveProfiles[x].getName()+"#";
+        for(int x = 0; x < saveProfiles.size(); x++){
+            out += saveProfiles.get(x).getName()+"#";
         }
         return out;
     }

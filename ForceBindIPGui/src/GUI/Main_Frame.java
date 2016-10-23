@@ -13,13 +13,13 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFileChooser;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
+//import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  *
@@ -33,6 +33,7 @@ public class Main_Frame extends javax.swing.JFrame {
     
     /**
      * Creates new form Main_Frame
+     * @throws java.net.URISyntaxException
      */
     public Main_Frame() throws URISyntaxException {
         this.FORCE_BIND_IP_URL = new URI("https://r1ch.net/projects/forcebindip");
@@ -160,11 +161,6 @@ public class Main_Frame extends javax.swing.JFrame {
 
         txtName.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         txtName.setToolTipText("Enter full path to file");
-        txtName.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtNameActionPerformed(evt);
-            }
-        });
 
         btnSave.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         btnSave.setText("Save Configuration");
@@ -329,13 +325,13 @@ public class Main_Frame extends javax.swing.JFrame {
         
     }//GEN-LAST:event_btnLoadActionPerformed
 
-    private void txtNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNameActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtNameActionPerformed
-
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
-        String conf = txtName.getText() +"#"+ cmbNetwork.getSelectedItem().toString() +"#"+ txtPath.getText() + "#" + chkI.isSelected() + "#" + chk64.isSelected() ;
-        Functions.saveProfiles(conf);
+        SavedProfile conf = new SavedProfile(txtName.getText(), cmbNetwork.getSelectedItem().toString(), txtPath.getText(), chkI.isSelected(), chk64.isSelected()) ;
+        //System.out.println(conf.toString());
+        Functions.saveProfile(conf);
+        cmbSaved.setModel(new DefaultComboBoxModel(Functions.profileNames().split("#")));
+        revalidate();
+        repaint();
     }//GEN-LAST:event_btnSaveActionPerformed
 
     private void btnFindActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFindActionPerformed
@@ -371,6 +367,8 @@ public class Main_Frame extends javax.swing.JFrame {
         JFileChooser chooser = new JFileChooser();
         chooser.setCurrentDirectory(new File("C:/"));
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Executables", "exe");
+        chooser.setFileFilter(filter);
         if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
             String file = chooser.getSelectedFile().getAbsolutePath();
             Functions.changeProgramFile(file);
@@ -386,11 +384,13 @@ public class Main_Frame extends javax.swing.JFrame {
     }//GEN-LAST:event_cmbNetworkActionPerformed
 
     private void btnRunActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRunActionPerformed
+        Process p;
         try {
-            Functions.runProcess(chkI.isSelected(), chk64.isSelected());
+            p = Functions.runProcess(chkI.isSelected(), chk64.isSelected());
         } catch (IOException ex) {
             Logger.getLogger(Main_Frame.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
         
     }//GEN-LAST:event_btnRunActionPerformed
 

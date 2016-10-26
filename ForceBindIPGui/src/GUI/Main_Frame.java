@@ -17,6 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 //import javax.swing.filechooser.FileNameExtensionFilter;
@@ -316,10 +317,17 @@ public class Main_Frame extends javax.swing.JFrame {
 
     private void btnLoadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoadActionPerformed
         String name = cmbSaved.getSelectedItem().toString();
-        String[] conf = Functions.getProfile(name).split("#");
+        String prof = Functions.getProfile(name);
+        if(prof == null){
+            JOptionPane.showConfirmDialog(this, "Could Not Load profile");
+        }
+        String[] conf = prof.split("#");
         txtName.setText(conf[0]);
         cmbNetwork.setSelectedItem(conf[1]);
+        String[] arr = cmbNetwork.getSelectedItem().toString().split(" ");
+        Functions.UseNetIntAddress = arr[arr.length-1];
         txtPath.setText(conf[2]);
+        Functions.changeProgramFile(conf[2]);
         chkI.setSelected(Boolean.parseBoolean(conf[3]));
         chk64.setSelected(Boolean.parseBoolean(conf[4]));
         

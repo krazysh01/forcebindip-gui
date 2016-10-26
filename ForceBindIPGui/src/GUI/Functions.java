@@ -164,20 +164,23 @@ public class Functions {
     }
     
     static String getProfile(String name){
-            boolean found = false;
-            int count = 0;
-            String config = null;
-            while(!found && count < saveProfiles.size()){
-                if(saveProfiles.get(count).getName().equals(name)){
-                    config = saveProfiles.get(count).toString();
-                    found = true;
-                }
+        boolean found = false;
+        int count = 0;
+        System.out.println("Looking for "+name);
+        String config = null;
+        while(!found && count < saveProfiles.size()){
+            if(saveProfiles.get(count).getName().equals(name)){
+                config = saveProfiles.get(count).toString();
+                System.out.println("Found as "+config);
+                found = true;
             }
-            if(found){
-                return config;
-            }else{
-                return null;
-            }
+            count++;
+        }
+        if(found){
+            return config;
+        }else{
+            return null;
+        }
     }
     
     static String profileNames(){

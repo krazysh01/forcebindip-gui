@@ -71,6 +71,7 @@ public class Main_Frame extends javax.swing.JFrame {
         btnBrowse = new javax.swing.JButton();
         chkI = new javax.swing.JCheckBox();
         chk64 = new javax.swing.JCheckBox();
+        addCommand = new javax.swing.JButton();
         btnRun = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -187,6 +188,7 @@ public class Main_Frame extends javax.swing.JFrame {
         jLabel6.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel6.setText("File Executable: ");
 
+        txtPath.setEditable(false);
         txtPath.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         txtPath.setToolTipText("Enter full path to file");
 
@@ -203,6 +205,13 @@ public class Main_Frame extends javax.swing.JFrame {
 
         chk64.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         chk64.setText("64bit");
+
+        addCommand.setText("Command Line Options");
+        addCommand.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addCommandActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -226,7 +235,8 @@ public class Main_Frame extends javax.swing.JFrame {
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(chk64)
                             .addComponent(chkI))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(addCommand)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -242,10 +252,14 @@ public class Main_Frame extends javax.swing.JFrame {
                     .addComponent(txtPath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnBrowse))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(chkI)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(chk64)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(chkI)
+                        .addGap(14, 14, 14)
+                        .addComponent(chk64)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(addCommand, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         btnRun.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
@@ -330,11 +344,17 @@ public class Main_Frame extends javax.swing.JFrame {
         Functions.changeProgramFile(conf[2]);
         chkI.setSelected(Boolean.parseBoolean(conf[3]));
         chk64.setSelected(Boolean.parseBoolean(conf[4]));
+        if(conf.length == 6)
+            Functions.setCommandOptions(conf[5]);
         
     }//GEN-LAST:event_btnLoadActionPerformed
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
-        SavedProfile conf = new SavedProfile(txtName.getText(), cmbNetwork.getSelectedItem().toString(), txtPath.getText(), chkI.isSelected(), chk64.isSelected()) ;
+        SavedProfile conf;
+        if(Functions.cmdOptions == "")
+            conf = new SavedProfile(txtName.getText(), cmbNetwork.getSelectedItem().toString(), txtPath.getText(), chkI.isSelected(), chk64.isSelected()) ;
+        else
+            conf = new SavedProfile(txtName.getText(), cmbNetwork.getSelectedItem().toString(), txtPath.getText(), chkI.isSelected(), chk64.isSelected(), Functions.cmdOptions) ;
         //System.out.println(conf.toString());
         Functions.saveProfile(conf);
         cmbSaved.setModel(new DefaultComboBoxModel(Functions.profileNames().split("#")));
@@ -401,6 +421,11 @@ public class Main_Frame extends javax.swing.JFrame {
         
         
     }//GEN-LAST:event_btnRunActionPerformed
+
+    private void addCommandActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addCommandActionPerformed
+        String options = JOptionPane.showInputDialog(this, "Please Enter all Options as you would on the command line:", Functions.getCommandOptions());
+        Functions.setCommandOptions(options);
+    }//GEN-LAST:event_addCommandActionPerformed
 
     /**
      * @param args the command line arguments
@@ -470,6 +495,7 @@ public class Main_Frame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton addCommand;
     private javax.swing.JButton btnBrowse;
     private javax.swing.JButton btnDownload;
     private javax.swing.JButton btnFind;

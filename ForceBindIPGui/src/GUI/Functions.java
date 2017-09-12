@@ -33,6 +33,7 @@ public class Functions {
     static Enumeration<NetworkInterface> NetInterface;
     static String UseNetIntAddress;
     static LinkedList<SavedProfile> saveProfiles = new LinkedList<>();
+    static String cmdOptions = "";
     
     static boolean programFound(){
         
@@ -70,15 +71,18 @@ public class Functions {
     
     static Process runProcess(boolean i, boolean x64) throws IOException{
         ProcessBuilder pb;
+        String cmd;
         if(i && x64){
-            pb = new ProcessBuilder("cmd.exe", "/c", "cd "+ FORCE_BIND_IP_DIR + " && " + FORCE_BIND_IP_NAME_64 + " -i " + UseNetIntAddress + " " + ProgramFile );
+            cmd = "cd "+ FORCE_BIND_IP_DIR + " && " + FORCE_BIND_IP_NAME_64 + " -i " + UseNetIntAddress + " " + ProgramFile;
         }else if(i){
-            pb = new ProcessBuilder("cmd.exe", "/c", "cd "+ FORCE_BIND_IP_DIR + " && " + FORCE_BIND_IP_NAME + " -i " + UseNetIntAddress + " " + ProgramFile );
+            cmd =  "cd "+ FORCE_BIND_IP_DIR + " && " + FORCE_BIND_IP_NAME + " -i " + UseNetIntAddress + " " + ProgramFile;
         }else if(x64){
-            pb = new ProcessBuilder("cmd.exe", "/c", "cd "+ FORCE_BIND_IP_DIR + " && " + FORCE_BIND_IP_NAME_64 + " " + UseNetIntAddress + " " + ProgramFile );
+            cmd =  "cd "+ FORCE_BIND_IP_DIR + " && " + FORCE_BIND_IP_NAME_64 + " " + UseNetIntAddress + " " + ProgramFile;
         }else{
-            pb = new ProcessBuilder("cmd.exe", "/c", "cd "+ FORCE_BIND_IP_DIR + " && " + FORCE_BIND_IP_NAME + " " + UseNetIntAddress + " " + ProgramFile );
+            cmd =  "cd "+ FORCE_BIND_IP_DIR + " && " + FORCE_BIND_IP_NAME + " " + UseNetIntAddress + " " + ProgramFile;
         }
+        System.out.println(cmd);
+        pb = new ProcessBuilder("cmd.exe", "/c", cmd, cmdOptions);
         pb.redirectErrorStream(true).inheritIO();
         Process p =  pb.start();
         return p;
@@ -97,7 +101,17 @@ public class Functions {
                     String[] lineArr = line.split("#");
                     boolean usei = Boolean.parseBoolean(lineArr[3]);
                     boolean x64 = Boolean.parseBoolean(lineArr[4]);
-                    saveProfiles.add(new SavedProfile(lineArr[0], lineArr[1], lineArr[2], usei, x64));
+                    switch (lineArr.length) {
+                        case 5:
+                            saveProfiles.add(new SavedProfile(lineArr[0], lineArr[1], lineArr[2], usei, x64));
+                            break;
+                        case 6:
+                            saveProfiles.add(new SavedProfile(lineArr[0], lineArr[1], lineArr[2], usei, x64, lineArr[5]));
+                            break;
+                        default:
+                            System.out.println("Profile: "+lineArr[0]+" Corrupted");
+                            break;
+                    }
                 }
                 inf.close();
                 return true;
@@ -149,7 +163,13 @@ public class Functions {
     }
     
     static void saveProfile(SavedProfile newProfile){
-        saveProfiles.add(newProfile);
+        if(confExists(newProfile.getName()) == -1){
+            saveProfiles.add(newProfile);
+        }else{
+            int index = confExists(newProfile.getName());
+            saveProfiles.remove(index);
+            saveProfiles.add(index, newProfile);
+        }  
         try {
             PrintWriter outf = new PrintWriter(new File(SAVED_FILE_PATH));
             for(int x = 0; x < saveProfiles.size(); x++){
@@ -159,8 +179,7 @@ public class Functions {
             outf.close();
         } catch (IOException ex) {
             Logger.getLogger(Functions.class.getName()).log(Level.SEVERE, null, ex);
-        }
-                
+        }      
     }
     
     static String getProfile(String name){
@@ -189,6 +208,27 @@ public class Functions {
             out += saveProfiles.get(x).getName()+"#";
         }
         return out;
+    }
+    
+    static void setCommandOptions(String op){
+        cmdOptions = op;
+    }
+    
+    static String getCommandOptions(){
+        return cmdOptions;
+    }
+    
+    static int confExists(String Name){
+        if(saveProfiles.size() == 0)
+            return -1;
+        boolean found = false;
+        int count = saveProfiles.size();
+        while(!found && count > 0 ){
+            count--;
+            if(saveProfiles.get(count).getName() == null ? Name == null : saveProfiles.get(count).getName().equals(Name))
+                found = true;
+        }
+        return count;
     }
     
 }

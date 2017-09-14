@@ -15,6 +15,13 @@ Features:
 
 The program and source code is available From Sourceforge and GITHUB
 
+Update: v1.51
+Additions:
+It is now possible to directly add Command Line arguments to the program you want to launch (for instance --incognito for chrome)
+Fixes:
+Fixed the Default IP being Null if you don't select anything in the Network Devices
+
+
 Update: v1.4
 Fixed Issue where trying to run a saved profile causes a "couldn't run the specified command line".
 

@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package GUI;
+package Control;
 
+import Objects.SavedProfile;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -31,30 +32,30 @@ public class Functions {
     static int ARBRITRARY_ARRAY_SIZE = 100;
     static String ProgramFile;
     static Enumeration<NetworkInterface> NetInterface;
-    static String UseNetIntAddress;
+    static String UseNetIntAddress ="127.0.0.1";
     static LinkedList<SavedProfile> saveProfiles = new LinkedList<>();
     static String cmdOptions = "";
     
-    static boolean programFound(){
+    public static boolean programFound(){
         
         boolean check = new File(FORCE_BIND_IP_DIR, FORCE_BIND_IP_NAME).exists();
         return check;
         
     }
     
-    static void changeDir(String newDir){
+    public static void changeDir(String newDir){
         
         FORCE_BIND_IP_DIR = newDir;
         
     }
     
-    static void changeProgramFile(String newFile){
+    public static void changeProgramFile(String newFile){
         
         ProgramFile = newFile;
         
     }
     
-    static String[] getNetInterfaceInfo(){
+    public static String[] getNetInterfaceInfo(){
         String[] outArr = new String[ARBRITRARY_ARRAY_SIZE];
         int count = 0;
         for (NetworkInterface netIf : Collections.list(NetInterface)) {
@@ -69,7 +70,7 @@ public class Functions {
         return newArr;
     }
     
-    static Process runProcess(boolean i, boolean x64) throws IOException{
+    public static Process runProcess(boolean i, boolean x64) throws IOException{
         ProcessBuilder pb;
         String cmd;
         if(i && x64){
@@ -88,7 +89,7 @@ public class Functions {
         return p;
     }
     
-    static boolean loadProfiles(){
+    public static boolean loadProfiles(){
         try {
             File profileFile = new File(SAVED_FILE_PATH);
             profileFile.createNewFile();
@@ -128,7 +129,7 @@ public class Functions {
         
     }
     
-    static void loadConfig(){
+    public static void loadConfig(){
         try {
             File confFile = new File(CONFIG_FILE_PATH);
             Scanner inf = new Scanner(confFile);
@@ -145,7 +146,7 @@ public class Functions {
         
     }
     
-    static boolean saveConfig(){
+    public static boolean saveConfig(){
         try {
             File confFile = new File(CONFIG_FILE_PATH);
             confFile.createNewFile();
@@ -162,7 +163,7 @@ public class Functions {
         }
     }
     
-    static void saveProfile(SavedProfile newProfile){
+    public static void saveProfile(SavedProfile newProfile){
         if(confExists(newProfile.getName()) == -1){
             saveProfiles.add(newProfile);
         }else{
@@ -182,7 +183,7 @@ public class Functions {
         }      
     }
     
-    static String getProfile(String name){
+    public static String getProfile(String name){
         boolean found = false;
         int count = 0;
         System.out.println("Looking for "+name);
@@ -202,7 +203,7 @@ public class Functions {
         }
     }
     
-    static String profileNames(){
+    public static String profileNames(){
         String out = "";
         for(int x = 0; x < saveProfiles.size(); x++){
             out += saveProfiles.get(x).getName()+"#";
@@ -210,15 +211,15 @@ public class Functions {
         return out;
     }
     
-    static void setCommandOptions(String op){
+    public static void setCommandOptions(String op){
         cmdOptions = op;
     }
     
-    static String getCommandOptions(){
+    public static String getCommandOptions(){
         return cmdOptions;
     }
     
-    static int confExists(String Name){
+    public static int confExists(String Name){
         if(saveProfiles.size() == 0)
             return -1;
         boolean found = false;
@@ -230,5 +231,32 @@ public class Functions {
         }
         return count;
     }
+
+    public static String getProgramFile() {
+        return ProgramFile;
+    }
+
+    public static Enumeration<NetworkInterface> getNetInterface() {
+        return NetInterface;
+    }
+
+    public static String getUseNetIntAddress() {
+        return UseNetIntAddress;
+    }
+
+    public static void setProgramFile(String ProgramFile) {
+        Functions.ProgramFile = ProgramFile;
+    }
+
+    public static void setNetInterface(Enumeration<NetworkInterface> NetInterface) {
+        Functions.NetInterface = NetInterface;
+    }
+
+    public static void setUseNetIntAddress(String UseNetIntAddress) {
+        Functions.UseNetIntAddress = UseNetIntAddress;
+    }
+    
+    
+    
     
 }

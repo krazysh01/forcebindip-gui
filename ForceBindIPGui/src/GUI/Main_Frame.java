@@ -5,6 +5,8 @@
  */
 package GUI;
 
+import Control.Functions;
+import Objects.SavedProfile;
 import java.awt.Color;
 import java.awt.Desktop;
 import java.io.File;
@@ -339,7 +341,7 @@ public class Main_Frame extends javax.swing.JFrame {
         txtName.setText(conf[0]);
         cmbNetwork.setSelectedItem(conf[1]);
         String[] arr = cmbNetwork.getSelectedItem().toString().split(" ");
-        Functions.UseNetIntAddress = arr[arr.length-1];
+        Functions.setUseNetIntAddress(arr[arr.length-1]);
         txtPath.setText(conf[2]);
         Functions.changeProgramFile(conf[2]);
         chkI.setSelected(Boolean.parseBoolean(conf[3]));
@@ -351,10 +353,10 @@ public class Main_Frame extends javax.swing.JFrame {
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
         SavedProfile conf;
-        if(Functions.cmdOptions == "")
+        if("".equals(Functions.getCommandOptions()))
             conf = new SavedProfile(txtName.getText(), cmbNetwork.getSelectedItem().toString(), txtPath.getText(), chkI.isSelected(), chk64.isSelected()) ;
         else
-            conf = new SavedProfile(txtName.getText(), cmbNetwork.getSelectedItem().toString(), txtPath.getText(), chkI.isSelected(), chk64.isSelected(), Functions.cmdOptions) ;
+            conf = new SavedProfile(txtName.getText(), cmbNetwork.getSelectedItem().toString(), txtPath.getText(), chkI.isSelected(), chk64.isSelected(), Functions.getCommandOptions()) ;
         //System.out.println(conf.toString());
         Functions.saveProfile(conf);
         cmbSaved.setModel(new DefaultComboBoxModel(Functions.profileNames().split("#")));
@@ -400,7 +402,7 @@ public class Main_Frame extends javax.swing.JFrame {
         if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
             String file = chooser.getSelectedFile().getAbsolutePath();
             Functions.changeProgramFile(file);
-            txtPath.setText(Functions.ProgramFile);
+            txtPath.setText(Functions.getProgramFile());
         } else {
             
         }
@@ -408,7 +410,7 @@ public class Main_Frame extends javax.swing.JFrame {
 
     private void cmbNetworkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbNetworkActionPerformed
         String[] arr = cmbNetwork.getSelectedItem().toString().split(" ");
-        Functions.UseNetIntAddress = arr[arr.length-1];
+        Functions.setUseNetIntAddress(arr[arr.length-1]);
     }//GEN-LAST:event_cmbNetworkActionPerformed
 
     private void btnRunActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRunActionPerformed
@@ -464,7 +466,7 @@ public class Main_Frame extends javax.swing.JFrame {
             }        
         });
         try {
-            Functions.NetInterface = NetworkInterface.getNetworkInterfaces();
+            Functions.setNetInterface(NetworkInterface.getNetworkInterfaces());
         } catch (SocketException ex) {
             Logger.getLogger(Main_Frame.class.getName()).log(Level.SEVERE, null, ex);
         }
